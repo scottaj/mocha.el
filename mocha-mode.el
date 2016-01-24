@@ -1,4 +1,4 @@
-;;; mocha.el --- Mocha testing for Emacs:
+;;; mocha-mode.el --- Mocha testing for Emacs:
 
 ;; Copyright (C) 2016 Al Scott <github.com/scottaj>
 ;; Author: Al Scott
@@ -51,4 +51,4 @@ If MOCHA-FILE is specified run just that file otherwise run MOCHA-PROJECT-TEST-D
   (mocha-test-file))
 
 (provide 'mocha-mode)
-;;; mocha.el ends here
+;;; mocha-mode.el ends here
