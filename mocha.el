@@ -25,9 +25,15 @@
 
 (defvar mocha-project-test-directory nil)
 
-(defun mocha-command ()
-  "The test command to run."
-  (concat mocha-environment-variables " " mocha-which-node " " mocha-command " " mocha-options " " mocha-project-test-directory))
+(defun mocha-command (&optional mocha-file)
+  "The test command to run.
+
+If MOCHA-FILE is specified run just that file otherwise run MOCHA-PROJECT-TEST-DIRECTORY"
+  (concat mocha-environment-variables " "
+          mocha-which-node " "
+          mocha-command " "
+          mocha-options " "
+          (or mocha-file mocha-project-test-directory)))
 
 (defun mocha-test-project ()
   "Test the current project."
@@ -37,12 +43,12 @@
 (defun mocha-test-file ()
   "Test the current file."
   (interactive)
-  nil)
+  (compile (mocha-command (buffer-file-name))))
 
 (defun mocha-test-at-point ()
   "Test the current innermost 'it' or 'describe' or the file if none is found."
   (interactive)
-  nil)
+  (mocha-test-file))
 
 (provide 'mocha-mode)
 ;;; mocha.el ends here
