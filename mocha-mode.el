@@ -35,15 +35,23 @@ If MOCHA-FILE is specified run just that file otherwise run MOCHA-PROJECT-TEST-D
           mocha-options " "
           (or mocha-file mocha-project-test-directory)))
 
+(defun run-mocha (&optional mocha-file)
+  "Run mocha in a compilation buffer.
+
+If MOCHA-FILE is specified run just that file otherwise run MOCHA-PROJECT-TEST-DIRECTORY"
+  (compile (mocha-command mocha-file))
+  (pop-to-buffer "*compilation*")
+  (rename-buffer "*mocha tests*"))
+
 (defun mocha-test-project ()
   "Test the current project."
   (interactive)
-  (compile (mocha-command)))
+  (run-mocha))
 
 (defun mocha-test-file ()
   "Test the current file."
   (interactive)
-  (compile (mocha-command (buffer-file-name))))
+  (run-mocha (buffer-file-name)))
 
 (defun mocha-test-at-point ()
   "Test the current innermost 'it' or 'describe' or the file if none is found."
