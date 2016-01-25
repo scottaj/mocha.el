@@ -17,13 +17,29 @@
 ;;; Code:
 (require 'compile)
 
-(defvar mocha-which-node "node")
+(defgroup mocha nil
+  "Tools for running mocha tests."
+  :group 'languages)
 
-(defvar mocha-command "mocha")
+(defcustom mocha-which-node "node"
+  "The path to the node executable to run."
+  :type 'string
+  :group 'mocha)
 
-(defvar mocha-environment-variables nil)
+(defcustom mocha-command "mocha"
+  "The path to the mocha command to run."
+  :type 'string
+  :group 'mocha)
 
-(defvar mocha-options nil)
+(defcustom mocha-environment-variables nil
+  "Environment variables to run mocha with."
+  :type 'string
+  :group 'mocha)
+
+(defcustom mocha-options nil
+  "Command line options to pass to mocha."
+  :type 'string
+  :group 'mocha)
 
 (defvar mocha-project-test-directory nil)
 
