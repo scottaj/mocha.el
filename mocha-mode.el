@@ -37,7 +37,7 @@ If MOCHA-FILE is specified run just that file otherwise run MOCHA-PROJECT-TEST-D
           mocha-options " "
           (or mocha-file mocha-project-test-directory)))
 
-(defun run-mocha (&optional mocha-file)
+(defun mocha-run (&optional mocha-file)
   "Run mocha in a compilation buffer.
 
 If MOCHA-FILE is specified run just that file otherwise run MOCHA-PROJECT-TEST-DIRECTORY"
@@ -48,12 +48,12 @@ If MOCHA-FILE is specified run just that file otherwise run MOCHA-PROJECT-TEST-D
 (defun mocha-test-project ()
   "Test the current project."
   (interactive)
-  (run-mocha))
+  (mocha-run))
 
 (defun mocha-test-file ()
   "Test the current file."
   (interactive)
-  (run-mocha (buffer-file-name)))
+  (mocha-run (buffer-file-name)))
 
 ;; Add NodeJS error format (from http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilation-mode/)
 (add-to-list 'compilation-error-regexp-alist-alist '(node "^[  ]+at \\(?:[^\(\n]+ \(\\)?\\([a-zA-Z\.0-9_/-]+\\):\\([0-9]+\\):\\([0-9]+\\)\)?$" 1 2 3))
