@@ -43,7 +43,6 @@
 
 (defvar mocha-project-test-directory nil)
 
-;;;###autoload
 (defun mocha-command (&optional mocha-file)
   "The test command to run.
 
@@ -54,7 +53,6 @@ If MOCHA-FILE is specified run just that file otherwise run MOCHA-PROJECT-TEST-D
           mocha-options " "
           (or mocha-file mocha-project-test-directory)))
 
-;;;###autoload
 (defun mocha-run (&optional mocha-file)
   "Run mocha in a compilation buffer.
 
@@ -64,11 +62,13 @@ If MOCHA-FILE is specified run just that file otherwise run MOCHA-PROJECT-TEST-D
   (pop-to-buffer "*compilation*")
   (rename-buffer "*mocha tests*"))
 
+;;;###autoload
 (defun mocha-test-project ()
   "Test the current project."
   (interactive)
   (mocha-run))
 
+;;;###autoload
 (defun mocha-test-file ()
   "Test the current file."
   (interactive)
