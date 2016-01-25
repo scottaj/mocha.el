@@ -58,6 +58,7 @@ If MOCHA-FILE is specified run just that file otherwise run MOCHA-PROJECT-TEST-D
 
 If MOCHA-FILE is specified run just that file otherwise run MOCHA-PROJECT-TEST-DIRECTORY"
   (compile (mocha-command mocha-file))
+  (kill-buffer "*mocha tests*")
   (pop-to-buffer "*compilation*")
   (rename-buffer "*mocha tests*"))
 
