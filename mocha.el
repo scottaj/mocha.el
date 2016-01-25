@@ -1,8 +1,8 @@
-;;; mocha-mode.el --- Mocha testing for Emacs:
+;;; mocha.el --- Mocha testing for Emacs:
 
 ;; Copyright (C) 2016 Al Scott <github.com/scottaj>
 ;; Author: Al Scott
-;; URL: http://github.com/pezra/scottaj/mocha-mode
+;; URL: http://github.com/scottaj/mocha.el
 ;; Created: 2016
 ;; Version: 0.1
 ;; Keywords: javascript mocha jasmine
@@ -62,5 +62,5 @@ If MOCHA-FILE is specified run just that file otherwise run MOCHA-PROJECT-TEST-D
 (add-to-list 'compilation-error-regexp-alist-alist '(npm "^[  ]+at \\(?:[^\(\n]+ \(\\)?\\([a-zA-Z\.0-9_/-]+\\):\\([0-9]+\\):\\([0-9]+\\)\)?$" 1 2 3))
 (add-to-list 'compilation-error-regexp-alist 'npm)
 
-(provide 'mocha-mode)
-;;; mocha-mode.el ends here
+(provide 'mocha)
+;;; mocha.el ends here
