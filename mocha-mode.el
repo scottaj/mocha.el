@@ -15,6 +15,8 @@
 ;; This mode provides the ability to run Mocha or Jasmine tests from within Emacs
 
 ;;; Code:
+(require 'compile)
+
 (defvar mocha-which-node "node")
 
 (defvar mocha-command "mocha")
@@ -57,6 +59,12 @@ If MOCHA-FILE is specified run just that file otherwise run MOCHA-PROJECT-TEST-D
   "Test the current innermost 'it' or 'describe' or the file if none is found."
   (interactive)
   (mocha-test-file))
+;; Add NodeJS error format (from http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilation-mode/)
+(add-to-list 'compilation-error-regexp-alist-alist '(node "^[  ]+at \\(?:[^\(\n]+ \(\\)?\\([a-zA-Z\.0-9_/-]+\\):\\([0-9]+\\):\\([0-9]+\\)\)?$" 1 2 3))
+(add-to-list 'compilation-error-regexp-alist 'node)
+
+(add-to-list 'compilation-error-regexp-alist-alist '(npm "^[  ]+at \\(?:[^\(\n]+ \(\\)?\\([a-zA-Z\.0-9_/-]+\\):\\([0-9]+\\):\\([0-9]+\\)\)?$" 1 2 3))
+(add-to-list 'compilation-error-regexp-alist 'npm)
 
 (provide 'mocha-mode)
 ;;; mocha-mode.el ends here
