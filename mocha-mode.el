@@ -55,10 +55,6 @@ If MOCHA-FILE is specified run just that file otherwise run MOCHA-PROJECT-TEST-D
   (interactive)
   (run-mocha (buffer-file-name)))
 
-(defun mocha-test-at-point ()
-  "Test the current innermost 'it' or 'describe' or the file if none is found."
-  (interactive)
-  (mocha-test-file))
 ;; Add NodeJS error format (from http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilation-mode/)
 (add-to-list 'compilation-error-regexp-alist-alist '(node "^[  ]+at \\(?:[^\(\n]+ \(\\)?\\([a-zA-Z\.0-9_/-]+\\):\\([0-9]+\\):\\([0-9]+\\)\)?$" 1 2 3))
 (add-to-list 'compilation-error-regexp-alist 'node)
