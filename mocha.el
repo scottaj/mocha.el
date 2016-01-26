@@ -1,4 +1,4 @@
-;;; mocha.el --- Mocha testing for Emacs:
+;;; mocha.el --- Run Mocha or Jasmine tests
 
 ;; Copyright (C) 2016 Al Scott <github.com/scottaj>
 ;; Author: Al Scott
