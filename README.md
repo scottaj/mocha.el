@@ -1,9 +1,9 @@
-# mocha-mode
-Emacs mode for running mocha tests
+# mocha.el
+Emacs helpers for running mocha tests
 
 Right now this is pretty bare-bones. It lets you test an entire project or a particular file.
 
-Everything is set up right now to be configured in local variables in a `.dir-locals.el`. Below is an example configuration:
+Everything is set up right now to be configured via customize or in local variables in a `.dir-locals.el`. Below is an example configuration:
 
 ```
 ((nil . (
