@@ -43,6 +43,14 @@
 
 (defvar mocha-project-test-directory nil)
 
+(defun mocha-find-project-root ()
+  "Find the root of the project."
+  (let ((root-files '(".git" ".hg" ".svn" "package.json")) (dir nil) (i 0))
+    (while (not dir)
+      (setq dir (locate-dominating-file default-directory (nth i root-files)))
+      (setq i (+ i 1)))
+    dir))
+
 (defun mocha-generate-command (&optional mocha-file)
   "The test command to run.
 
@@ -63,8 +71,9 @@ If MOCHA-FILE is specified run just that file otherwise run MOCHA-PROJECT-TEST-D
 
   (when (get-buffer "*mocha tests*")
     (kill-buffer "*mocha tests*"))
-  (let ((test-command-to-run (mocha-generate-command mocha-file)))
+  (let ((test-command-to-run (mocha-generate-command mocha-file)) (root-dir (mocha-find-project-root)))
     (with-current-buffer (get-buffer-create "*mocha tests*")
+      (setq default-directory root-dir)
       (compilation-start test-command-to-run 'mocha-compilation-mode (lambda (m) (buffer-name))))))
 
 (defvar node-error-regexp
