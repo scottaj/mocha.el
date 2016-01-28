@@ -43,7 +43,7 @@
 
 (defvar mocha-project-test-directory nil)
 
-(defun mocha-command (&optional mocha-file)
+(defun mocha-generate-command (&optional mocha-file)
   "The test command to run.
 
 If MOCHA-FILE is specified run just that file otherwise run MOCHA-PROJECT-TEST-DIRECTORY"
@@ -57,11 +57,34 @@ If MOCHA-FILE is specified run just that file otherwise run MOCHA-PROJECT-TEST-D
   "Run mocha in a compilation buffer.
 
 If MOCHA-FILE is specified run just that file otherwise run MOCHA-PROJECT-TEST-DIRECTORY"
-  (compile (mocha-command mocha-file))
+  (save-some-buffers (not compilation-ask-about-save)
+                     (when (boundp 'compilation-save-buffers-predicate)
+                       compilation-save-buffers-predicate))
+
   (when (get-buffer "*mocha tests*")
     (kill-buffer "*mocha tests*"))
-  (pop-to-buffer "*compilation*")
-  (rename-buffer "*mocha tests*"))
+  (let ((test-command-to-run (mocha-generate-command mocha-file)))
+    (with-current-buffer (get-buffer-create "*mocha tests*")
+      (compilation-start test-command-to-run 'mocha-compilation-mode (lambda (m) (buffer-name))))))
+
+(defvar node-error-regexp
+  "^[  ]+at \\(?:[^\(\n]+ \(\\)?\\([a-zA-Z\.0-9_/-]+\\):\\([0-9]+\\):\\([0-9]+\\)\)?$"
+  "Regular expression to match NodeJS errors.
+From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilation-mode/")
+
+(defvar node-error-regexp-alist
+  `((,node-error-regexp 1 2 3)))
+
+(defun mocha-compilation-filter ()
+  "Filter function for compilation output."
+  (ansi-color-apply-on-region compilation-filter-start (point-max)))
+
+(define-compilation-mode mocha-compilation-mode "Mocha"
+  "Mocha compilation mode."
+  (progn
+    (set (make-local-variable 'compilation-error-regexp-alist) node-error-regexp-alist)
+    (add-hook 'compilation-filter-hook 'mocha-compilation-filter nil t)
+  ))
 
 ;;;###autoload
 (defun mocha-test-project ()
@@ -74,13 +97,6 @@ If MOCHA-FILE is specified run just that file otherwise run MOCHA-PROJECT-TEST-D
   "Test the current file."
   (interactive)
   (mocha-run (buffer-file-name)))
-
-;; Add NodeJS error format (from http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilation-mode/)
-(add-to-list 'compilation-error-regexp-alist-alist '(node "^[  ]+at \\(?:[^\(\n]+ \(\\)?\\([a-zA-Z\.0-9_/-]+\\):\\([0-9]+\\):\\([0-9]+\\)\)?$" 1 2 3))
-(add-to-list 'compilation-error-regexp-alist 'node)
-
-(add-to-list 'compilation-error-regexp-alist-alist '(npm "^[  ]+at \\(?:[^\(\n]+ \(\\)?\\([a-zA-Z\.0-9_/-]+\\):\\([0-9]+\\):\\([0-9]+\\)\)?$" 1 2 3))
-(add-to-list 'compilation-error-regexp-alist 'npm)
 
 (provide 'mocha)
 ;;; mocha.el ends here
