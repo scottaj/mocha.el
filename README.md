@@ -15,3 +15,7 @@ Everything is set up right now to be configured via customize or in local variab
             )))
 
 ```
+
+In order to run tests there are two functions exposed. `mocha-test-project` will run all the tests in your project. `mocha-test-file` will try to test just the current file you are visiting with mocha.
+
+You can run either of these functions via `M-x`, or assign them to hotkeys.
