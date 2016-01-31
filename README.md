@@ -1,3 +1,6 @@
+[![Melpa Status](http://melpa.milkbox.net/packages/mocha-badge.svg)](http://melpa.milkbox.net/#/mocha)
+[![Melpa Stable Status](http://melpa-stable.milkbox.net/packages/mocha-badge.svg)](http://melpa-stable.milkbox.net/#/mocha)
+
 # mocha.el
 Emacs helpers for running mocha tests
 
