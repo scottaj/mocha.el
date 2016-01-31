@@ -16,6 +16,7 @@
 
 ;;; Code:
 (require 'compile)
+(require 'js2-mode)
 
 (defgroup mocha nil
   "Tools for running mocha tests."
@@ -43,39 +44,6 @@
 
 (defvar mocha-project-test-directory nil)
 
-(defun mocha-find-project-root ()
-  "Find the root of the project."
-  (let ((root-files '(".git" ".hg" ".svn" "package.json")) (dir nil) (i 0))
-    (while (not dir)
-      (setq dir (locate-dominating-file default-directory (nth i root-files)))
-      (setq i (+ i 1)))
-    dir))
-
-(defun mocha-generate-command (&optional mocha-file)
-  "The test command to run.
-
-If MOCHA-FILE is specified run just that file otherwise run MOCHA-PROJECT-TEST-DIRECTORY"
-  (concat mocha-environment-variables " "
-          mocha-which-node " "
-          mocha-command " "
-          mocha-options " "
-          (or mocha-file mocha-project-test-directory)))
-
-(defun mocha-run (&optional mocha-file)
-  "Run mocha in a compilation buffer.
-
-If MOCHA-FILE is specified run just that file otherwise run MOCHA-PROJECT-TEST-DIRECTORY"
-  (save-some-buffers (not compilation-ask-about-save)
-                     (when (boundp 'compilation-save-buffers-predicate)
-                       compilation-save-buffers-predicate))
-
-  (when (get-buffer "*mocha tests*")
-    (kill-buffer "*mocha tests*"))
-  (let ((test-command-to-run (mocha-generate-command mocha-file)) (root-dir (mocha-find-project-root)))
-    (with-current-buffer (get-buffer-create "*mocha tests*")
-      (setq default-directory root-dir)
-      (compilation-start test-command-to-run 'mocha-compilation-mode (lambda (m) (buffer-name))))))
-
 (defvar node-error-regexp
   "^[  ]+at \\(?:[^\(\n]+ \(\\)?\\([a-zA-Z\.0-9_/-]+\\):\\([0-9]+\\):\\([0-9]+\\)\)?$"
   "Regular expression to match NodeJS errors.
@@ -95,6 +63,89 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
     (add-hook 'compilation-filter-hook 'mocha-compilation-filter nil t)
   ))
 
+(defun mocha-find-project-root ()
+  "Find the root of the project."
+  (let ((root-files '(".git" ".hg" ".svn" "package.json")) (dir nil) (i 0))
+    (while (not dir)
+      (setq dir (locate-dominating-file default-directory (nth i root-files)))
+      (setq i (+ i 1)))
+    dir))
+
+(defun mocha-generate-command (&optional mocha-file test)
+  "The test command to run.
+
+If MOCHA-FILE is specified run just that file otherwise run
+MOCHA-PROJECT-TEST-DIRECTORY
+
+IF TEST is specified run mocha with a grep for just that test."
+  (let ((path (or mocha-file mocha-project-test-directory))
+        (target (if test (concat "--grep \"" test "\" ") "")))
+    (concat mocha-environment-variables " "
+            mocha-which-node " "
+            mocha-command " "
+            mocha-options " "
+            target
+            path)))
+
+(defun mocha-run (&optional mocha-file test)
+  "Run mocha in a compilation buffer.
+
+If MOCHA-FILE is specified run just that file otherwise run
+MOCHA-PROJECT-TEST-DIRECTORY.
+
+IF TEST is specified run mocha with a grep for just that test."
+  (save-some-buffers (not compilation-ask-about-save)
+                     (when (boundp 'compilation-save-buffers-predicate)
+                       compilation-save-buffers-predicate))
+
+  (when (get-buffer "*mocha tests*")
+    (kill-buffer "*mocha tests*"))
+  (let ((test-command-to-run (mocha-generate-command mocha-file test)) (root-dir (mocha-find-project-root)))
+    (with-current-buffer (get-buffer-create "*mocha tests*")
+      (setq default-directory root-dir)
+      (compilation-start test-command-to-run 'mocha-compilation-mode (lambda (m) (buffer-name))))))
+
+(defun mocha-walk-up-to-it (node)
+  "Recursively walk up the ast from the js2-node NODE.
+
+Stops when we find a call node named 'describe' or 'it' or reach the root.
+
+If we find the name node we are looking for, return the first argument of the
+ call node.
+
+If we reach the root without finding what we are looking for return nil."
+  (if (and (js2-node-p node) (not (js2-ast-root-p node)))
+      (let ((calls '("describe" "it")))
+        (if (and
+             ;; If the node is an expression or statement
+             (js2-expr-stmt-node-p node)
+             ;; And the expression is a function calL
+             (js2-call-node-p (js2-expr-stmt-node-expr node))
+             ;; And the call target is a name node
+             (js2-name-node-p (js2-call-node-target (js2-expr-stmt-node-expr node)))
+             ;; And the name of the name node is what we are looking for
+             (member (js2-name-node-name (js2-call-node-target (js2-expr-stmt-node-expr node))) calls))
+            ;; Get the first argument, check it is a string and return its value
+            (let ((first-arg (car (js2-call-node-args (js2-expr-stmt-node-expr node)))))
+              (if (js2-string-node-p first-arg)
+                  (js2-string-node-value first-arg)
+                nil))
+          (mocha-walk-up-to-it (js2-node-parent-stmt node))))
+    nil))
+
+(defun mocha-find-current-test ()
+  "Try to find the innermost 'describe' or 'it' using js2-mode.
+
+When a 'describe' or 'it' is found, return the first argument of that call.
+If js2-mode is not enabled in the buffer, returns nil.
+If there is no wrapping 'describe' or 'it' found, return nil."
+  (if (string= major-mode "js2-mode")
+      (let ((node (js2-node-at-point)))
+        (mocha-walk-up-to-it node))
+    (progn
+      (print "js2-mode must be enabled to run test at point.")
+      nil)))
+
 ;;;###autoload
 (defun mocha-test-project ()
   "Test the current project."
@@ -106,6 +157,13 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
   "Test the current file."
   (interactive)
   (mocha-run (buffer-file-name)))
+
+;;;###autoload
+(defun mocha-test-at-point ()
+  "Test the current innermost 'it' or 'describe' or the file if none is found."
+  (interactive)
+  (let ((file (buffer-file-name)) (test-at-point (mocha-find-current-test)))
+    (mocha-run file test-at-point)))
 
 (provide 'mocha)
 ;;; mocha.el ends here
