@@ -4,9 +4,9 @@
 ;; Author: Al Scott
 ;; URL: http://github.com/scottaj/mocha.el
 ;; Created: 2016
-;; Version: 0.3
+;; Version: 0.4
 ;; Keywords: javascript mocha jasmine
-;; Package-Requires: ()
+;; Package-Requires: (("js2-mode" "20150909"))
 
 ;; This file is NOT part of GNU Emacs.
 ;;
