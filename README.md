@@ -2,9 +2,7 @@
 [![Melpa Stable Status](http://melpa-stable.milkbox.net/packages/mocha-badge.svg)](http://melpa-stable.milkbox.net/#/mocha)
 
 # mocha.el
-Emacs helpers for running mocha tests
-
-Right now this is pretty bare-bones. It lets you test an entire project or a particular file.
+Emacs helpers for running mocha tests. It lets you test an entire project, a particular file, or a particular test in that file.
 
 Everything is set up right now to be configured via customize or in local variables in a `.dir-locals.el`. Below is an example configuration:
 
