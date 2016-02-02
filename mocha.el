@@ -6,7 +6,7 @@
 ;; Created: 2016
 ;; Version: 0.4
 ;; Keywords: javascript mocha jasmine
-;; Package-Requires: (("js2-mode" "20150909"))
+;; Package-Requires: ((js2-mode "20150909"))
 
 ;; This file is NOT part of GNU Emacs.
 ;;
