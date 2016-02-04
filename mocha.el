@@ -20,7 +20,7 @@
 
 (defgroup mocha nil
   "Tools for running mocha tests."
-  :group 'languages)
+  :group 'tools)
 
 (defcustom mocha-which-node "node"
   "The path to the node executable to run."
@@ -143,7 +143,7 @@ If there is no wrapping 'describe' or 'it' found, return nil."
       (let ((node (js2-node-at-point)))
         (mocha-walk-up-to-it node))
     (progn
-      (print "js2-mode must be enabled to run test at point.")
+      (message "js2-mode must be enabled to run test at point.")
       nil)))
 
 ;;;###autoload
