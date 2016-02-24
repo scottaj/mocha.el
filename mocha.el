@@ -42,6 +42,11 @@
   :type 'string
   :group 'mocha)
 
+(defcustom mocha-debug-port "5858"
+  "The port number to debug mocha tests at."
+  :type 'string
+  :group 'mocha)
+
 (defvar mocha-project-test-directory nil)
 
 (defvar node-error-regexp
@@ -71,21 +76,48 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
       (setq i (+ i 1)))
     dir))
 
-(defun mocha-generate-command (&optional mocha-file test)
+(defun mocha-generate-command (debug &optional mocha-file test)
   "The test command to run.
 
+If DEBUG is true, then make this a debug command.
+
 If MOCHA-FILE is specified run just that file otherwise run
-MOCHA-PROJECT-TEST-DIRECTORY
+MOCHA-PROJECT-TEST-DIRECTORY.
 
 IF TEST is specified run mocha with a grep for just that test."
   (let ((path (or mocha-file mocha-project-test-directory))
-        (target (if test (concat "--grep \"" test "\" ") "")))
+        (target (if test (concat "--grep \"" test "\" ") ""))
+        (node-command (concat mocha-which-node (if debug (concat " --debug=" mocha-debug-port) "")))
+        (options (concat mocha-options (if debug " -t 21600000"))))
     (concat mocha-environment-variables " "
-            mocha-which-node " "
+            node-command " "
             mocha-command " "
-            mocha-options " "
+            options " "
             target
             path)))
+
+(defun mocha-debug (&optional mocha-file test)
+  "Debug mocha using realgud.
+
+If MOCHA-FILE is specified run just that file otherwise run
+MOCHA-PROJECT-TEST-DIRECTORY.
+
+IF TEST is specified run mocha with a grep for just that test."
+  (if (not (fboundp 'realgud:nodejs))
+      (message "realgud is required to debug mocha")
+    (save-some-buffers (not compilation-ask-about-save)
+                     (when (boundp 'compilation-save-buffers-predicate)
+                       compilation-save-buffers-predicate))
+
+  (when (get-buffer "*mocha tests: debug*")
+    (kill-buffer "*mocha tests: debug*"))
+  (let ((test-command-to-run (mocha-generate-command t mocha-file test))
+        (root-dir (mocha-find-project-root))
+        (debug-command (concat mocha-which-node " debug localhost:" mocha-debug-port)))
+    (with-current-buffer (get-buffer-create "*mocha tests: debug*")
+      (setq default-directory root-dir)
+      (compilation-start test-command-to-run 'mocha-compilation-mode (lambda (m) (buffer-name)))
+      (realgud:nodejs debug-command)))))
 
 (defun mocha-run (&optional mocha-file test)
   "Run mocha in a compilation buffer.
@@ -100,7 +132,7 @@ IF TEST is specified run mocha with a grep for just that test."
 
   (when (get-buffer "*mocha tests*")
     (kill-buffer "*mocha tests*"))
-  (let ((test-command-to-run (mocha-generate-command mocha-file test)) (root-dir (mocha-find-project-root)))
+  (let ((test-command-to-run (mocha-generate-command nil mocha-file test)) (root-dir (mocha-find-project-root)))
     (with-current-buffer (get-buffer-create "*mocha tests*")
       (setq default-directory root-dir)
       (compilation-start test-command-to-run 'mocha-compilation-mode (lambda (m) (buffer-name))))))
@@ -153,10 +185,22 @@ If there is no wrapping 'describe' or 'it' found, return nil."
   (mocha-run))
 
 ;;;###autoload
+(defun mocha-debug-project ()
+  "Debug the current project."
+  (interactive)
+  (mocha-debug))
+
+;;;###autoload
 (defun mocha-test-file ()
   "Test the current file."
   (interactive)
   (mocha-run (buffer-file-name)))
+
+;;;###autoload
+(defun mocha-debug-file ()
+  "Debug the current file."
+  (interactive)
+  (mocha-debug (buffer-file-name)))
 
 ;;;###autoload
 (defun mocha-test-at-point ()
@@ -164,6 +208,13 @@ If there is no wrapping 'describe' or 'it' found, return nil."
   (interactive)
   (let ((file (buffer-file-name)) (test-at-point (mocha-find-current-test)))
     (mocha-run file test-at-point)))
+
+;;;###autoload
+(defun mocha-debug-at-point ()
+  "Debug the current innermost 'it' or 'describe' or the file if none is found."
+  (interactive)
+  (let ((file (buffer-file-name)) (test-at-point (mocha-find-current-test)))
+    (mocha-debug file test-at-point)))
 
 (provide 'mocha)
 ;;; mocha.el ends here
