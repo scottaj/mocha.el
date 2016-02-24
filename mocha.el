@@ -37,7 +37,7 @@
   :type 'string
   :group 'mocha)
 
-(defcustom mocha-options nil
+(defcustom mocha-options "--recursive --reporter dot"
   "Command line options to pass to mocha."
   :type 'string
   :group 'mocha)
