@@ -60,3 +60,17 @@ The provided debugging buffer takes the same commands as the standard node CLI d
  * `repl` use interactive REPL at point
  
  Additionally `C-c C-c` will send a BREAK signal, and `M-p` will cycle through previous inputs.
+
+## Contribution
+
+Be sure to!
+
+Install [Cask](https://github.com/cask/cask) if you haven't already.
+
+Install the dependencies:
+
+    $ cask install
+
+Run the tests with:
+
+    $ make test
