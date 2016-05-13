@@ -1,0 +1,14 @@
+{
+  "name": "mocha-el-sample-project",
+  "version": "1.0.0",
+  "description": "Sample project for demoing and testing mocha.el capabilities",
+  "main": "lib/mocha-sample.js",
+  "scripts": {
+    "test": "$(npm bin)/mocha"
+  },
+  "author": "Al Scott",
+  "license": "MIT",
+  "devDependencies": {
+    "mocha": "^2.4.5"
+  }
+}
