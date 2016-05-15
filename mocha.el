@@ -27,7 +27,7 @@
   :type 'string
   :group 'mocha)
 
-(defcustom mocha-command "mocha"
+(defcustom mocha-command "node_modules/.bin/mocha"
   "The path to the mocha command to run."
   :type 'string
   :group 'mocha)
