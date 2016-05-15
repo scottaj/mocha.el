@@ -9,6 +9,8 @@
   "author": "Al Scott",
   "license": "MIT",
   "devDependencies": {
+    "chai": "^3.5.0",
+    "eslint": "^2.10.1",
     "mocha": "^2.4.5"
   }
 }
