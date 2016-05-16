@@ -1,7 +1,7 @@
 (require 'ecukes)
 
 (defun kill-js-buffers ()
-  (mapcar (lambda (buffer)
+  (mapc (lambda (buffer)
             (when (string-match "\.js" (buffer-name buffer))
               (kill-buffer (buffer-name buffer))))
           (buffer-list))) 
