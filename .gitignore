@@ -1,3 +1,4 @@
 /.cask
 node_modules
 .tern-port
+/.ecukes-failing-scenarios
