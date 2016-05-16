@@ -1,8 +1,9 @@
 (require 'ecukes)
+(require 'f)
 
 (defun kill-js-buffers ()
   (mapc (lambda (buffer)
-            (when (string-match "\.js" (buffer-name buffer))
+            (when (f-ext? (or (buffer-file-name buffer) "") "js")
               (kill-buffer (buffer-name buffer))))
           (buffer-list))) 
 
