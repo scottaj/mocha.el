@@ -126,3 +126,48 @@ Feature: Test Mocha Project
       """
       Mocha exited abnormally
       """
+
+  Scenario: Testing a particular line in a test file without js2-mode
+    Given I visit sample project file "sample-project/test/parse-int-test.js"
+    When I switch to buffer "parse-int-test.js"
+    Then I should be in buffer "parse-int-test.js"
+    And I go to line "7"
+    And I run the command "mocha-test-at-point"
+    And I wait for the compilation to finish
+    Then I should see buffer "*mocha tests*"
+    And I should see contents in buffer "*mocha tests*":
+      """
+      Mocha started
+      """
+    And I should see contents in buffer "*mocha tests*":
+      """
+      1 passing
+      """
+    And I should see contents in buffer "*mocha tests*":
+      """
+      1 failing
+      """
+    And I should see contents in buffer "*mocha tests*":
+      """
+      Mocha exited abnormally
+      """
+    When I go to line "13"
+    And I run the command "mocha-test-at-point"
+    And I wait for the compilation to finish
+    Then I should see buffer "*mocha tests*"
+    And I should see contents in buffer "*mocha tests*":
+      """
+      Mocha started
+      """
+    And I should see contents in buffer "*mocha tests*":
+      """
+      1 passing
+      """
+    And I should see contents in buffer "*mocha tests*":
+      """
+      1 failing
+      """
+    And I should see contents in buffer "*mocha tests*":
+      """
+      Mocha exited abnormally
+      """
