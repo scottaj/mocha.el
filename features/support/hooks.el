@@ -1,13 +1,13 @@
 (require 'ecukes)
-(require 'f)
 
-(defun kill-js-buffers ()
-  (mapc (lambda (buffer)
-            (when (f-ext? (or (buffer-file-name buffer) "") "js")
-              (kill-buffer (buffer-name buffer))))
-          (buffer-list))) 
+(defvar mocha-init-buffers (buffer-list))
 
-(After ;; Kill all test buffers
- (when (get-buffer "*mocha tests*")
-   (kill-buffer "*mocha tests*"))
- (kill-js-buffers))
+(defun mocha-kill-buffers ()
+  (mapc
+   (lambda (buffer)
+     (unless (member buffer mocha-init-buffers)
+       (kill-buffer buffer)))
+   (buffer-list)))
+
+(Before
+ (mocha-kill-buffers))
