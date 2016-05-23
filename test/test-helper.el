@@ -1,4 +1,5 @@
 (require 'f)
+(require 's)
 
 (defvar mocha-test/test-path (f-parent (f-this-file)))
 (defvar mocha-test/root-path (f-parent mocha-test/test-path))
