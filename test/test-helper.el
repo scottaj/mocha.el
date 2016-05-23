@@ -13,4 +13,4 @@
      (f-mkdir mocha-test/sandbox-path)
      (f-touch (f-join mocha-test/sandbox-path "package.json"))
      (let ((default-directory (f-slash mocha-test/sandbox-path)))
-       ,@body)))
+       (f-with-sandbox default-directory ,@body))))
