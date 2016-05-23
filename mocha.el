@@ -77,6 +77,18 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
       (setq i (+ i 1)))
     dir))
 
+(defun mocha-opts-file (path)
+  "Return path to mocha.opts file for PATH."
+  (or path (setq path default-directory))
+  (let ((opts-dir
+         (f--traverse-upwards
+          (f-exists? (f-expand "mocha.opts" it))
+          (if (f-dir? path)
+              path
+            (f-parent path)))))
+    (when opts-dir
+      (f-join opts-dir "mocha.opts"))))
+
 (defun mocha-generate-command (debug &optional mocha-file test)
   "The test command to run.
 
@@ -86,10 +98,13 @@ If MOCHA-FILE is specified run just that file otherwise run
 MOCHA-PROJECT-TEST-DIRECTORY.
 
 IF TEST is specified run mocha with a grep for just that test."
-  (let ((path (or mocha-file mocha-project-test-directory))
-        (target (if test (concat "--grep \"" test "\" ") ""))
-        (node-command (concat mocha-which-node (if debug (concat " --debug=" mocha-debug-port) "")))
-        (options (concat mocha-options (if debug " -t 21600000"))))
+  (let* ((path (or mocha-file mocha-project-test-directory))
+         (target (if test (concat "--grep \"" test "\" ") ""))
+         (node-command (concat mocha-which-node (if debug (concat " --debug=" mocha-debug-port) "")))
+         (options (concat mocha-options (if debug " -t 21600000")))
+         (opts-file (mocha-opts-file path)))
+    (when opts-file
+      (setq options (concat options (if opts-file (concat " --opts " opts-file)))))
     (concat mocha-environment-variables " "
             node-command " "
             mocha-command " "
