@@ -71,11 +71,15 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
 
 (defun mocha-find-project-root ()
   "Find the root of the project."
-  (let ((root-files '("package.json" ".git" ".hg" ".svn")) (dir nil) (i 0))
-    (while (not dir)
-      (setq dir (locate-dominating-file default-directory (nth i root-files)))
-      (setq i (+ i 1)))
-    dir))
+  (f--traverse-upwards (f-exists? (f-expand "package.json" it))))
+
+(defun mocha-command ()
+  "Return Mocha command.
+
+If a locally installed binary exists, use that, otherwise return
+`mocha-command'."
+  (let ((mocha-bin (f-join (mocha-find-project-root) "node_modules" ".bin" "mocha")))
+    (if (f-file? mocha-bin) mocha-bin mocha-command)))
 
 (defun mocha-generate-command (debug &optional mocha-file test)
   "The test command to run.
@@ -92,7 +96,7 @@ IF TEST is specified run mocha with a grep for just that test."
         (options (concat mocha-options (if debug " -t 21600000"))))
     (concat mocha-environment-variables " "
             node-command " "
-            mocha-command " "
+            (mocha-command) " "
             options " "
             target
             path)))
