@@ -71,11 +71,7 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
 
 (defun mocha-find-project-root ()
   "Find the root of the project."
-  (let ((root-files '("package.json" ".git" ".hg" ".svn")) (dir nil) (i 0))
-    (while (not dir)
-      (setq dir (locate-dominating-file default-directory (nth i root-files)))
-      (setq i (+ i 1)))
-    dir))
+  (f--traverse-upwards (f-exists? (f-expand "package.json" it))))
 
 (defun mocha-generate-command (debug &optional mocha-file test)
   "The test command to run.
