@@ -42,3 +42,20 @@
    (should (s-contains? "--reporter dot" (mocha-generate-command nil)))
    (let ((mocha-reporter "spec"))
      (should (s-contains? "--reporter spec" (mocha-generate-command nil))))))
+
+
+;;;; mocha-find-project-root
+
+(ert-deftest mocha-test/mocha-find-project-root/return-path-to-project-root ()
+  (mocha-test/with-sandbox
+   (should (f-same? (mocha-find-project-root) mocha-test/sandbox-path))
+   (should (s-ends-with? "/" (mocha-find-project-root)))
+   (let ((foo-dir (f-join default-directory "foo")))
+     (f-mkdir foo-dir)
+     (let ((default-directory foo-dir))
+       (should (f-same? (mocha-find-project-root) mocha-test/sandbox-path))))))
+
+(ert-deftest mocha-test/mocha-find-project-root/return-nil-unless-package-file-exist ()
+  (mocha-test/with-sandbox
+   (f-delete "package.json" :force)
+   (should-not (mocha-find-project-root))))
