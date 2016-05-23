@@ -27,7 +27,7 @@
   :type 'string
   :group 'mocha)
 
-(defcustom mocha-command "mocha"
+(defcustom mocha-command "node_modules/.bin/mocha"
   "The path to the mocha command to run."
   :type 'string
   :group 'mocha)
@@ -70,7 +70,7 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
 
 (defun mocha-find-project-root ()
   "Find the root of the project."
-  (let ((root-files '(".git" ".hg" ".svn" "package.json")) (dir nil) (i 0))
+  (let ((root-files '("package.json" ".git" ".hg" ".svn")) (dir nil) (i 0))
     (while (not dir)
       (setq dir (locate-dominating-file default-directory (nth i root-files)))
       (setq i (+ i 1)))

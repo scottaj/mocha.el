@@ -1,6 +1,7 @@
 CASK ?= cask
+NPM ?= npm
 
-all: test
+all: install test
 
 test: unit ecukes
 
@@ -12,5 +13,6 @@ ecukes:
 
 install:
 	${CASK} install
+	cd sample-project && ${NPM} install
 
 .PHONY:	all test unit ecukes install

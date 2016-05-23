@@ -1,9 +1,12 @@
-language: generic
+language: node_js
+node_js:
+  - "6.0.0"
 sudo: false
 before_install:
   - curl -fsSkL https://gist.github.com/rejeep/ebcd57c3af83b049833b/raw > x.sh && source ./x.sh
   - evm install $EVM_EMACS --use --skip
   - cask --debug
+  - cd sample-project && npm install && cd ..
 env:
   - EVM_EMACS=emacs-24.4-travis
   - EVM_EMACS=emacs-24.5-travis
