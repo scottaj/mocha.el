@@ -36,3 +36,9 @@
      (f-touch integration-test-file)
      (should (s-contains? (concat "--opts " unit-opts-file) (mocha-generate-command nil unit-test-file)))
      (should-not (s-contains? "--opts" (mocha-generate-command nil integration-test-file))))))
+
+(ert-deftest mocha-test/mocha-generate-command/return-command-with-correct-reporter ()
+  (mocha-test/with-sandbox
+   (should (s-contains? "--reporter dot" (mocha-generate-command nil)))
+   (let ((mocha-reporter "spec"))
+     (should (s-contains? "--reporter spec" (mocha-generate-command nil))))))

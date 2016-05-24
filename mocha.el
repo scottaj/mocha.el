@@ -38,8 +38,13 @@
   :type 'string
   :group 'mocha)
 
-(defcustom mocha-options "--recursive --reporter dot"
+(defcustom mocha-options "--recursive"
   "Command line options to pass to mocha."
+  :type 'string
+  :group 'mocha)
+
+(defcustom mocha-reporter "dot"
+  "Name of reporter to use."
   :type 'string
   :group 'mocha)
 
@@ -60,7 +65,9 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
 
 (defun mocha-compilation-filter ()
   "Filter function for compilation output."
-  (ansi-color-apply-on-region compilation-filter-start (point-max)))
+  (ansi-color-apply-on-region compilation-filter-start (point-max))
+  (save-excursion
+    (replace-regexp "\\[[0-9]+[a-z]" "" nil (point-min) (point-max))))
 
 (define-compilation-mode mocha-compilation-mode "Mocha"
   "Mocha compilation mode."
@@ -102,6 +109,7 @@ IF TEST is specified run mocha with a grep for just that test."
          (target (if test (concat "--grep \"" test "\" ") ""))
          (node-command (concat mocha-which-node (if debug (concat " --debug=" mocha-debug-port) "")))
          (options (concat mocha-options (if debug " -t 21600000")))
+         (options (concat options (concat " --reporter " mocha-reporter)))
          (opts-file (mocha-opts-file path)))
     (when opts-file
       (setq options (concat options (if opts-file (concat " --opts " opts-file)))))

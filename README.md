@@ -27,10 +27,9 @@ Everything is set up right now to be configured via customize or per project in 
             (mocha-environment-variables . "NODE_ENV=test")
             (mocha-options . "--recursive --reporter dot -t 5000")
             (mocha-project-test-directory . "test")
+            (mocha-reporter . "spec")
             )))
 ```
-
-I highly recommend using the "dot" reporter with Emacs. The ansi escaping code within emacs generally does a bad job with the other reporters 
 
 ## Running tests
 
