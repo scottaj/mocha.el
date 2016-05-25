@@ -1,5 +1,6 @@
 [![Melpa Status](http://melpa.milkbox.net/packages/mocha-badge.svg)](http://melpa.milkbox.net/#/mocha)
 [![Melpa Stable Status](http://melpa-stable.milkbox.net/packages/mocha-badge.svg)](http://melpa-stable.milkbox.net/#/mocha)
+[![Build Status](https://travis-ci.org/scottaj/mocha.el.svg?branch=master)](https://travis-ci.org/scottaj/mocha.el)
 
 # mocha.el
 Emacs helpers for running mocha tests. It lets you test an entire project, a particular file, or a particular test in that file.
