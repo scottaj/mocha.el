@@ -69,7 +69,7 @@ Install [Cask](https://github.com/cask/cask) if you haven't already.
 
 Install the dependencies:
 
-    $ cask install
+    $ make install
 
 Run the tests with:
 
