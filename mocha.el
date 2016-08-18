@@ -67,14 +67,15 @@ From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilati
   "Filter function for compilation output."
   (ansi-color-apply-on-region compilation-filter-start (point-max))
   (save-excursion
-    (replace-regexp "\\[[0-9]+[a-z]" "" nil (point-min) (point-max))))
+    (while (re-search-forward "^[\\[[0-9]+[a-z]" nil t)
+      (replace-match ""))))
 
 (define-compilation-mode mocha-compilation-mode "Mocha"
   "Mocha compilation mode."
   (progn
     (set (make-local-variable 'compilation-error-regexp-alist) node-error-regexp-alist)
     (add-hook 'compilation-filter-hook 'mocha-compilation-filter nil t)
-  ))
+    ))
 
 (defun mocha-find-project-root ()
   "Find the root of the project."
