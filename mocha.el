@@ -170,8 +170,8 @@ if you want to use `mocha-run-last'.
       (compilation-start test-command-to-run 'mocha-compilation-mode (lambda (m) (buffer-name)))
 
       ;; memorize last test, used in mocha-run-last
-      (set (make-local-variable 'mocha-file) mocha-file)
-      (set (make-local-variable 'mocha-test) test)
+      (set (make-local-variable 'mocha-last-file) mocha-file)
+      (set (make-local-variable 'mocha-last-test) test)
       )))
 
 (defun mocha-run-last ()
@@ -183,7 +183,7 @@ Relies on the presence of *mocha tests* buffer to retrieve settings.
   (let ((buf (get-buffer "*mocha tests*")))
     (if buf
         (with-current-buffer buf
-          (mocha-run mocha-file mocha-test)
+          (mocha-run mocha-last-file mocha-last-test)
           )
       (message "Mocha buffer not found. You first need to use other mocha test commands.")
       )
