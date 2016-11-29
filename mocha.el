@@ -147,17 +147,47 @@ IF TEST is specified run mocha with a grep for just that test."
 If MOCHA-FILE is specified run just that file otherwise run
 MOCHA-PROJECT-TEST-DIRECTORY.
 
-IF TEST is specified run mocha with a grep for just that test."
+IF TEST is specified run mocha with a grep for just that test.
+
+Root directory (hence project), file and test are preserved
+as local variables in *mocha tests* buffer, so don't kill it
+if you want to use `mocha-run-last'.
+"
   (save-some-buffers (not compilation-ask-about-save)
                      (when (boundp 'compilation-save-buffers-predicate)
                        compilation-save-buffers-predicate))
 
-  (when (get-buffer "*mocha tests*")
-    (kill-buffer "*mocha tests*"))
-  (let ((test-command-to-run (mocha-generate-command nil mocha-file test)) (root-dir (mocha-find-project-root)))
-    (with-current-buffer (get-buffer-create "*mocha tests*")
+  (let (
+        (test-command-to-run (mocha-generate-command nil mocha-file test))
+        (root-dir (mocha-find-project-root))
+        ;; reuse existing buffer to preserve layout and local variables
+        (buf (get-buffer-create "*mocha tests*"))
+        )
+    (with-current-buffer buf
+      ;; unneeded: (toggle-read-only nil) (erase-buffer)
+      ;;         : compilation will clean buffer anyway
       (setq default-directory root-dir)
-      (compilation-start test-command-to-run 'mocha-compilation-mode (lambda (m) (buffer-name))))))
+      (compilation-start test-command-to-run 'mocha-compilation-mode (lambda (m) (buffer-name)))
+
+      ;; memorize last test, used in mocha-run-last
+      (set (make-local-variable 'mocha-file) mocha-file)
+      (set (make-local-variable 'mocha-test) test)
+      )))
+
+(defun mocha-run-last ()
+  "Runs again mocha with same parameters as for last run.
+
+Relies on the presence of *mocha tests* buffer to retrieve settings.
+"
+  (interactive)
+  (let ((buf (get-buffer "*mocha tests*")))
+    (if buf
+        (with-current-buffer buf
+          (mocha-run mocha-file mocha-test)
+          )
+      (message "Mocha buffer not found. You first need to use other mocha test commands.")
+      )
+    ))
 
 (defun mocha-walk-up-to-it (node)
   "Recursively walk up the ast from the js2-node NODE.
