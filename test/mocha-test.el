@@ -59,3 +59,25 @@
   (mocha-test/with-sandbox
    (f-delete "package.json" :force)
    (should-not (mocha-find-project-root))))
+
+
+;;;; node-error-regexp
+
+(ert-deftest mocha-test/node-error-regexp/unix-path ()
+  (let ((line "    at Connection.parseE (/app/pitia-server/node_modules/pg/lib/connection.js:554:11)"))
+    (should (string-match node-error-regexp line))
+    ;; 1 is file, 2 is line, 3 is column
+    (should (string= (match-string (nth 1 (car node-error-regexp-alist)) line)
+                     "/app/pitia-server/node_modules/pg/lib/connection.js"))
+    (should (string= (match-string (nth 2 (car node-error-regexp-alist)) line) "554"))
+    (should (string= (match-string (nth 3 (car node-error-regexp-alist)) line) "11"))))
+
+(ert-deftest mocha-test/node-error-regexp/windows-path ()
+  (let ((line
+         "    at Timeout.callback [as _onTimeout] (node_modules\\jsdom\\lib\\jsdom\\browser\\Window.js:477:19)"))
+    (should (string-match node-error-regexp line))
+    ;; 1 is file, 2 is line, 3 is column
+    (should (string= (match-string (nth 1 (car node-error-regexp-alist)) line)
+                     "node_modules\\jsdom\\lib\\jsdom\\browser\\Window.js"))
+    (should (string= (match-string (nth 2 (car node-error-regexp-alist)) line) "477"))
+    (should (string= (match-string (nth 3 (car node-error-regexp-alist)) line) "19"))))
