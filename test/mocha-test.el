@@ -82,6 +82,31 @@
     (should (string= (match-string (nth 2 (car node-error-regexp-alist)) line) "477"))
     (should (string= (match-string (nth 3 (car node-error-regexp-alist)) line) "19"))))
 
+
+;;;; mocha-find-current-test
+
+(ert-deftest mocha-test/mocha-find-current-test/js2-mode ()
+  (with-temp-buffer
+    (insert "it('does as expected', function() {")
+    (save-excursion (insert "})"))
+    (js2-mode)
+    (js2-reparse)
+    (should (string= (mocha-find-current-test) "does as expected"))))
+
+(ert-deftest mocha-test/mocha-find-current-test/js2-jsx-mode ()
+  (with-temp-buffer
+    (insert "it('does as expected', function() {")
+    (save-excursion (insert "})"))
+    (js2-jsx-mode)
+    (js2-reparse)
+    (should (string= (mocha-find-current-test) "does as expected"))))
+
+(ert-deftest mocha-test/mocha-find-current-test/js-mode-error ()
+  (with-temp-buffer
+    (insert "it('does as expected', function() {")
+    (save-excursion (insert "})"))
+    (js-mode)
+    (should-error (mocha-find-current-test))))
 
 
 ;;;; mocha-run
