@@ -81,3 +81,24 @@
                      "node_modules\\jsdom\\lib\\jsdom\\browser\\Window.js"))
     (should (string= (match-string (nth 2 (car node-error-regexp-alist)) line) "477"))
     (should (string= (match-string (nth 3 (car node-error-regexp-alist)) line) "19"))))
+
+
+
+;;;; mocha-run
+
+(ert-deftest mocha-test/mocha-run/buffer-local-compilation-env ()
+  (with-temp-buffer
+    (make-local-variable 'compilation-environment)
+    (setq compilation-environment '("TEST=abc"))
+    (let ((command (if (memq system-type '(windows-nt ms-dos))
+                       "echo %TEST%"
+                     "echo $TEST")))
+      (flet ((mocha-generate-command (debug &optional mocha-file test) command)
+             (mocha-find-project-root () ".")
+             (cd (dir) "."))
+        (mocha-run))
+      (sit-for 2)
+      (with-current-buffer "*mocha tests*"
+        (goto-char 0)
+        (should (search-forward (concat "\n" command "\n") nil t))
+        (should (looking-at-p "abc"))))))
