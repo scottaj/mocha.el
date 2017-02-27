@@ -59,6 +59,11 @@
   :group 'mocha
   :safe #'stringp)
 
+(defcustom mocha-imenu-functions '("describe" "it" "beforeAll" "beforeEach" "afterAll" "afterEach")
+  "Functions that create a new imenu entry at every call site."
+  :type '(repeat 'string)
+  :group 'mocha)
+
 (defvar mocha-project-test-directory nil)
 (put 'mocha-project-test-directory 'safe-local-variable #'stringp)
 
@@ -240,6 +245,58 @@ If there is no wrapping 'describe' or 'it' found, return nil."
   (interactive)
   (let ((file (buffer-file-name)) (test-at-point (mocha-find-current-test)))
     (mocha-debug file test-at-point)))
+
+(defun mocha--get-callsite-name (node)
+  "Return the name of a `describe' or `it' NODE."
+  (let* ((first-arg (car (js2-call-node-args node)))
+         (start (js2-node-abs-pos first-arg)))
+    (concat
+     (js2-name-node-name (js2-call-node-target node))
+     " "
+     (if (js2-string-node-p first-arg)
+        (js2-string-node-value first-arg)
+      (if first-arg
+          (buffer-substring start (+ start (js2-node-len first-arg)))
+        "~empty~")))))
+
+(defun mocha-make-imenu-alist ()
+  "Generate an imenu alist mirroring the mocha test suite structure."
+  (when js2-mode-ast
+      (let ((children-stack (list '())) callee callee-name)
+        (js2-visit-ast
+         js2-mode-ast
+         (lambda (node end-p)
+           (if (and (js2-call-node-p node)
+                    (js2-name-node-p (setq callee (js2-call-node-target node)))
+                    (member (setq callee-name (js2-name-node-name callee)) mocha-imenu-functions))
+               (cond
+                ((string= callee-name "describe")
+                 (if end-p
+                     (let ((my-children (nreverse (pop children-stack))))
+                       (push (cons (mocha--get-callsite-name node) my-children) (car children-stack)))
+                   (push (list (cons "*declaration*" (js2-node-abs-pos node))) children-stack)
+                   t))
+                ((string= callee-name "it")
+                 (push (cons (mocha--get-callsite-name node) (js2-node-abs-pos node))
+                       (car children-stack)))
+                (t (push (cons callee-name (js2-node-abs-pos node)) (car children-stack))))
+             t)))
+        (nreverse (pop children-stack)))))
+
+(defvar mocha--other-js2-imenu-function nil "Used to store the prior js2 imenu function.")
+
+;;;###autoload
+(defun mocha-toggle-imenu-function ()
+  "Toggle the use mocha-specific imenu function."
+  (interactive)
+  (if mocha--other-js2-imenu-function
+      (progn
+        (setq-local imenu-create-index-function mocha--other-js2-imenu-function)
+        (setq-local mocha--other-js2-imenu-function nil))
+    (setq-local mocha--other-js2-imenu-function imenu-create-index-function)
+    (setq-local imenu-create-index-function 'mocha-make-imenu-alist))
+  ;; Flush the imenu cache
+  (setq imenu--index-alist nil))
 
 (provide 'mocha)
 ;;; mocha.el ends here
