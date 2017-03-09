@@ -26,34 +26,41 @@
 (defcustom mocha-which-node "node"
   "The path to the node executable to run."
   :type 'string
-  :group 'mocha)
+  :group 'mocha
+  :safe #'stringp)
 
 (defcustom mocha-command "node_modules/.bin/mocha"
   "The path to the mocha command to run."
   :type 'string
-  :group 'mocha)
+  :group 'mocha
+  :safe #'stringp)
 
 (defcustom mocha-environment-variables nil
   "Environment variables to run mocha with."
   :type 'string
-  :group 'mocha)
+  :group 'mocha
+  :safe #'stringp)
 
 (defcustom mocha-options "--recursive"
   "Command line options to pass to mocha."
   :type 'string
-  :group 'mocha)
+  :group 'mocha
+  :safe #'stringp)
 
 (defcustom mocha-reporter "dot"
   "Name of reporter to use."
   :type 'string
-  :group 'mocha)
+  :group 'mocha
+  :safe #'stringp)
 
 (defcustom mocha-debug-port "5858"
   "The port number to debug mocha tests at."
   :type 'string
-  :group 'mocha)
+  :group 'mocha
+  :safe #'stringp)
 
 (defvar mocha-project-test-directory nil)
+(put 'mocha-project-test-directory 'safe-local-variable #'stringp)
 
 (defvar node-error-regexp
   "^[  ]+at \\(?:[^\(\n]+ \(\\)?\\([a-zA-Z\.0-9_/\\-]+\\):\\([0-9]+\\):\\([0-9]+\\)\)?$"
