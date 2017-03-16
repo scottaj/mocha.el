@@ -155,16 +155,12 @@ If MOCHA-FILE is specified run just that file otherwise run
 MOCHA-PROJECT-TEST-DIRECTORY.
 
 IF TEST is specified run mocha with a grep for just that test."
-  (save-some-buffers (not compilation-ask-about-save)
-                     (when (boundp 'compilation-save-buffers-predicate)
-                       compilation-save-buffers-predicate))
-
   (when (get-buffer "*mocha tests*")
     (kill-buffer "*mocha tests*"))
-  (let ((test-command-to-run (mocha-generate-command nil mocha-file test)) (root-dir (mocha-find-project-root)))
-    (with-current-buffer (get-buffer-create "*mocha tests*")
-      (setq default-directory root-dir)
-      (compilation-start test-command-to-run 'mocha-compilation-mode (lambda (m) (buffer-name))))))
+  (let ((test-command-to-run (mocha-generate-command nil mocha-file test))
+        (default-directory (mocha-find-project-root))
+        (compilation-buffer-name-function (lambda (_) "" "*mocha tests*")))
+    (compile test-command-to-run 'mocha-compilation-mode)))
 
 (defun mocha-walk-up-to-it (node)
   "Recursively walk up the ast from the js2-node NODE.
