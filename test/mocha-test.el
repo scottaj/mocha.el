@@ -110,3 +110,13 @@
         (goto-char 0)
         (should (search-forward (concat "\n" command "\n") nil t))
         (should (looking-at-p "abc"))))))
+
+(ert-deftest mocha-test/node-error-regexp/windows-path-with-drive ()
+  (let ((line
+         "    at Timeout.callback [as _onTimeout] (C:\\Users\\name\\node_modules\\jsdom\\lib\\jsdom\\browser\\Window.js:477:19)"))
+    (should (string-match node-error-regexp line))
+    ;; 1 is file, 2 is line, 3 is column
+    (should (string= (match-string (nth 1 (car node-error-regexp-alist)) line)
+                     "C:\\Users\\name\\node_modules\\jsdom\\lib\\jsdom\\browser\\Window.js"))
+    (should (string= (match-string (nth 2 (car node-error-regexp-alist)) line) "477"))
+    (should (string= (match-string (nth 3 (car node-error-regexp-alist)) line) "19"))))
