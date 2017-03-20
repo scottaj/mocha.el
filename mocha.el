@@ -276,6 +276,7 @@ If there is no wrapping 'describe' or 'it' found, return nil."
                        (push (cons (mocha--get-callsite-name node) my-children) (car children-stack)))
                    (push (list (cons "*declaration*" (js2-node-abs-pos node))) children-stack)
                    t))
+                (end-p nil)             ; We only want to visit the others once
                 ((string= callee-name "it")
                  (push (cons (mocha--get-callsite-name node) (js2-node-abs-pos node))
                        (car children-stack)))
