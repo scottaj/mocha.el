@@ -59,10 +59,16 @@
   :group 'mocha
   :safe #'stringp)
 
+(defun mocha-list-of-strings-p (object)
+  "Return t if OBJECT is a list of strings and nil otherwise."
+  (and (listp object)
+       (not (memq nil (mapcar #'stringp object)))))
+
 (defcustom mocha-imenu-functions '("describe" "it" "beforeAll" "beforeEach" "afterAll" "afterEach")
   "Functions that create a new imenu entry at every call site."
   :type '(repeat 'string)
-  :group 'mocha)
+  :group 'mocha
+  :safe #'mocha-list-of-strings-p)
 
 (defvar mocha-project-test-directory nil)
 (put 'mocha-project-test-directory 'safe-local-variable #'stringp)
