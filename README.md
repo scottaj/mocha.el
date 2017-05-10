@@ -48,6 +48,8 @@ Stack traces for failing tests have clickable links to the file and line that fa
 
 `mocha-test-at-point` uses [js2-mode](https://github.com/mooz/js2-mode) to find the nearest `describe` or `it` and extract the description string from it. As such, it only works in JavaScript files that have js2-mode set as the major mode.
 
+Mocha includes an `imenu` function that builds an index matching the `describe` and `it` tree. You can enable this index function by setting `imenu-create-index-function` to `mocha-make-imenu-alist` or using `(mocha-toggle-imenu-function)`.
+
 ## Debugging Tests
 
 Each of the test functions has a debug analog: `mocha-debug-project`, `mocha-debug-file`, and `mocha-debug-at-point`. Using these functions depends on having [realgud](https://github.com/rocky/emacs-dbgr) installed and loaded.
