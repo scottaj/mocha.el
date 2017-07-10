@@ -108,6 +108,16 @@
     (js-mode)
     (should-error (mocha-find-current-test))))
 
+(ert-deftest mocha-test/mocha-find-current-test/custom-test-definition-nodes ()
+  (with-temp-buffer
+    (insert "test('that it does as expected', 'test.json'")
+    (save-excursion (insert ");"))
+    (js2-mode)
+    (js2-parse)
+    (make-local-variable 'mocha-test-definition-nodes)
+    (push "test" mocha-test-definition-nodes)
+    (should (string= (mocha-find-current-test) "that it does as expected"))))
+
 
 ;;;; mocha-run
 
@@ -205,3 +215,19 @@ afterAll(() => {});")
                         ("it works" . 50)))))
       (mocha-toggle-imenu-function)
       (should (equal (imenu--make-index-alist) prev)))))
+
+(ert-deftest mocha-test/imenu-custom-test-definition-nodes ()
+  (with-temp-buffer
+    (insert "function setUp() {}\ndescribe(\"top-level\", () => {test('that it works', 'test.json');});")
+    (js2-mode)
+    (js2-parse)
+    (make-local-variable 'mocha-test-definition-nodes)
+    (make-local-variable 'mocha-imenu-functions)
+    (push "test" mocha-test-definition-nodes)
+    (push "test" mocha-imenu-functions)
+    (mocha-toggle-imenu-function)
+    (should (equal (imenu--make-index-alist)
+                   '(("*Rescan*" . -99)
+                     ("describe top-level"
+                      ("*declaration*" . 21)
+                      ("test that it works" . 50)))))))
