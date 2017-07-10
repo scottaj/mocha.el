@@ -201,12 +201,8 @@ If we reach the root without finding what we are looking for return nil."
 When a 'describe' or 'it' is found, return the first argument of that call.
 If js2-mode is not enabled in the buffer, returns nil.
 If there is no wrapping 'describe' or 'it' found, return nil."
-  (if (string= major-mode "js2-mode")
-      (let ((node (js2-node-at-point)))
-        (mocha-walk-up-to-it node))
-    (progn
-      (message "js2-mode must be enabled to run test at point.")
-      nil)))
+  (let ((node (js2-node-at-point)))
+    (mocha-walk-up-to-it node)))
 
 ;;;###autoload
 (defun mocha-test-project ()

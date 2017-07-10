@@ -13,6 +13,14 @@
         (And (format "I type %S" command))
         (And "I execute the action chain")))
 
+(When "^I run the command \"\\([^\"]+\\)\" expecting an error$"
+      (lambda (command)
+        (When "I start an action chain")
+        (And "I press \"M-x\"")
+        (And (format "I type %S" command))
+        (should-error
+         (And "I execute the action chain"))))
+
 (Then "^I should see buffer \"\\([^\"]+\\)\"$"
       (lambda (buffer-name)
         (let ((buffer-names (-map 'buffer-name (-map 'window-buffer (window-list)))))
