@@ -64,6 +64,12 @@
   (and (listp object)
        (not (memq nil (mapcar #'stringp object)))))
 
+(defcustom mocha-test-definition-nodes '("describe" "it")
+  "The names of functions used to define mocha tests or test suites."
+  :type '(repeat 'string)
+  :group 'mocha
+  :safe #'mocha-list-of-strings-p)
+
 (defcustom mocha-imenu-functions '("describe" "it" "beforeAll" "beforeEach" "afterAll" "afterEach")
   "Functions that create a new imenu entry at every call site."
   :type '(repeat 'string)
@@ -183,22 +189,22 @@ If we find the name node we are looking for, return the first argument of the
 
 If we reach the root without finding what we are looking for return nil."
   (if (and (js2-node-p node) (not (js2-ast-root-p node)))
-      (let ((calls '("describe" "it")))
-        (if (and
-             ;; If the node is an expression or statement
-             (js2-expr-stmt-node-p node)
-             ;; And the expression is a function calL
-             (js2-call-node-p (js2-expr-stmt-node-expr node))
-             ;; And the call target is a name node
-             (js2-name-node-p (js2-call-node-target (js2-expr-stmt-node-expr node)))
-             ;; And the name of the name node is what we are looking for
-             (member (js2-name-node-name (js2-call-node-target (js2-expr-stmt-node-expr node))) calls))
-            ;; Get the first argument, check it is a string and return its value
-            (let ((first-arg (car (js2-call-node-args (js2-expr-stmt-node-expr node)))))
-              (if (js2-string-node-p first-arg)
-                  (js2-string-node-value first-arg)
-                nil))
-          (mocha-walk-up-to-it (js2-node-parent-stmt node))))
+      (if (and
+           ;; If the node is an expression or statement
+           (js2-expr-stmt-node-p node)
+           ;; And the expression is a function calL
+           (js2-call-node-p (js2-expr-stmt-node-expr node))
+           ;; And the call target is a name node
+           (js2-name-node-p (js2-call-node-target (js2-expr-stmt-node-expr node)))
+           ;; And the name of the name node is what we are looking for
+           (member (js2-name-node-name (js2-call-node-target (js2-expr-stmt-node-expr node)))
+                   mocha-test-definition-nodes))
+          ;; Get the first argument, check it is a string and return its value
+          (let ((first-arg (car (js2-call-node-args (js2-expr-stmt-node-expr node)))))
+            (if (js2-string-node-p first-arg)
+                (js2-string-node-value first-arg)
+              nil))
+        (mocha-walk-up-to-it (js2-node-parent-stmt node)))
     nil))
 
 (defun mocha-find-current-test ()
@@ -279,7 +285,7 @@ If there is no wrapping 'describe' or 'it' found, return nil."
                    (push (list (cons "*declaration*" (js2-node-abs-pos node))) children-stack)
                    t))
                 (end-p nil)             ; We only want to visit the others once
-                ((string= callee-name "it")
+                ((member callee-name mocha-test-definition-nodes)
                  (push (cons (mocha--get-callsite-name node) (js2-node-abs-pos node))
                        (car children-stack)))
                 (t (push (cons callee-name (js2-node-abs-pos node)) (car children-stack))))
