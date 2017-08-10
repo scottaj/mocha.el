@@ -213,7 +213,7 @@ If we reach the root without finding what we are looking for return nil."
 When a 'describe' or 'it' is found, return the first argument of that call.
 If js2-mode is not enabled in the buffer, returns nil.
 If there is no wrapping 'describe' or 'it' found, return nil."
-  (let ((node (js2-node-at-point)))
+  (let ((node (js2-node-at-point nil t)))
     (mocha-walk-up-to-it node)))
 
 ;;;###autoload

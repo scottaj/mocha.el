@@ -101,6 +101,14 @@
     (js2-reparse)
     (should (string= (mocha-find-current-test) "does as expected"))))
 
+(ert-deftest mocha-test/mocha-find-current-test/point-in-comment ()
+  (with-temp-buffer
+    (insert "it('does as expected', function() { // Imporant ")
+    (save-excursion (insert "test\n});"))
+    (js2-mode)
+    (js2-parse)
+    (should (string= (mocha-find-current-test) "does as expected"))))
+
 (ert-deftest mocha-test/mocha-find-current-test/js-mode-error ()
   (with-temp-buffer
     (insert "it('does as expected', function() {")
