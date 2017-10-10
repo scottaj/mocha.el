@@ -128,7 +128,7 @@ MOCHA-PROJECT-TEST-DIRECTORY.
 
 IF TEST is specified run mocha with a grep for just that test."
   (let* ((path (or mocha-file mocha-project-test-directory))
-         (target (if test (concat "--grep \"" test "\" ") ""))
+         (target (if test (concat "--fgrep '" test "' ") ""))
          (node-command (concat mocha-which-node (if debug (concat " --debug=" mocha-debug-port) "")))
          (options (concat mocha-options (if debug " -t 21600000")))
          (options (concat options (concat " --reporter " mocha-reporter)))
