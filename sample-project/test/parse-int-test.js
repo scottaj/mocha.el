@@ -3,7 +3,7 @@ const expect = require('chai').expect;
 const myParseInt = require('../src/parse-int.js');
 
 describe('my parse int', function () {
-  it('turns a string into a number', function () {
+  it('turns a string into a number (integer)', function () {
     let expected = myParseInt('10');
 
     expect(expected).to.equal(10);
