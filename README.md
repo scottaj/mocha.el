@@ -54,7 +54,7 @@ Mocha includes an `imenu` function that builds an index matching the `describe` 
 
 Each of the test functions has a debug analog: `mocha-debug-project`, `mocha-debug-file`, and `mocha-debug-at-point`. Using these functions depends on having a javascript debugger installed and loaded. The debuggers with built-in support are:
 
-* [realgud](https://github.com/rocky/emacs-dbgr)
+* [realgud](https://github.com/realgud/realgud)
 * [indium](https://indium.readthedocs.io/en/latest/debugger.html)
 
 The `realgud` debugging buffer takes the same commands as the standard node CLI debugger. Some useful ones are:
