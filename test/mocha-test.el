@@ -135,19 +135,11 @@
     (setq compilation-environment '("TEST=abc"))
     (let ((command (if (memq system-type '(windows-nt ms-dos))
                        "echo %TEST%"
-                     "echo $TEST"))
-          (old-mocha-generate-command (symbol-function 'mocha-generate-command))
-          (old-mocha-find-project-root (symbol-function 'mocha-find-project-root))
-          (old-cd (symbol-function 'cd)))
-      (unwind-protect
-          (progn
-            (fset 'mocha-generate-command (lambda (debug &optional mocha-file test) command))
-            (fset 'mocha-find-project-root (lambda () "."))
-            (fset 'cd (lambda (dir) "."))
-            (mocha-run))
-        (fset 'mocha-generate-command old-mocha-generate-command)
-        (fset 'mocha-find-project-root old-mocha-find-project-root)
-        (fset 'cd old-cd))
+                     "echo $TEST")))
+      (mocha-dynamic-flet ((mocha-generate-command (debug &optional mocha-file test) command)
+                           (mocha-find-project-root () ".")
+                           (cd (dir) "."))
+        (mocha-run))
       (sit-for 2)
       (with-current-buffer "*mocha tests*"
         (goto-char 0)
