@@ -55,12 +55,14 @@
 
 (defcustom mocha-debugger 'realgud
   "Which debugger to use."
-  :type '(choice (const :tag "realgud" realgud))
+  :type '(choice (const :tag "realgud" realgud)
+                 (const :tag "indium" indium))
   :group 'mocha
   :safe #'mocha-debugger-name-p)
 
 (defvar mocha-debuggers
-  '((realgud :must-bind realgud:nodejs :attach-fn mocha-realgud:nodejs-attach))
+  '((realgud :must-bind realgud:nodejs :attach-fn mocha-realgud:nodejs-attach)
+    (indium :must-bind indium-connect-to-nodejs :attach-fn mocha-attach-indium))
   "List of debuggers which can be attached with `mocha-debug'.
 Each entry is a list of (name . props), where NAME is a symbol
 that `mocha-debugger' can take on, and PROPS is a plist with two keys:
@@ -211,6 +213,22 @@ NODE, BUF, PORT, FILE, and TEST are described in
 `mocha-debuggers' under :attach-fn."
   (ignore buf file test)
   (realgud:nodejs (concat node " debug localhost:" port)))
+
+(defun mocha-attach-indium (node buf port file test)
+  "Create a new `indium' connection to a running process.
+NODE, BUF, PORT, FILE, and TEST are described in
+`mocha-debuggers' under :attach-fn."
+  (ignore node port file test)
+  (with-current-buffer buf
+    (sit-for 1 t)
+    (save-excursion
+      (goto-char (point-min))
+      (if (re-search-forward (rx "Debugger listening on ws://" (group (* (not (any ":")))) ":"
+                                 (group (* digit)) "/" (group (repeat 8 hex)
+                                                              (repeat 4 (: "-" (repeat 4 hex)))
+                                                              (repeat 8 hex))))
+          (indium-connect-to-nodejs (match-string 1) (match-string 2) (match-string 3))
+        (error "Did not find debugger connection details for Indium")))))
 
 (defun mocha-run (&optional mocha-file test)
   "Run mocha in a compilation buffer.
