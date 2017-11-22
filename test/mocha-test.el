@@ -138,9 +138,9 @@
                      "echo $TEST")))
       (mocha-dynamic-flet ((mocha-generate-command (debug &optional mocha-file test) command)
                            (mocha-find-project-root () ".")
-                           (cd (dir) "."))
+                           (cd (dir) ".")
+                           (start-process))
         (mocha-run))
-      (sit-for 2)
       (with-current-buffer "*mocha tests*"
         (goto-char 0)
         (should (search-forward (concat "\n" command "\n") nil t))
