@@ -139,7 +139,10 @@
       (mocha-dynamic-flet ((mocha-generate-command (debug &optional mocha-file test) command)
                            (mocha-find-project-root () ".")
                            (cd (dir) ".")
-                           (start-process))
+                           ;; In 24.x, (fboundp 'start-process)
+                           ;; determines whether async compilation can
+                           ;; run. In 25.x, it's (fboundp 'make-process)
+                           (start-process) (make-process))
         (mocha-run))
       (with-current-buffer "*mocha tests*"
         (goto-char 0)
