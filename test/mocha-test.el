@@ -234,3 +234,49 @@ afterAll(() => {});")
                      ("describe top-level"
                       ("*declaration*" . 21)
                       ("test that it works" . 50)))))))
+
+
+;;;; mocha-debug
+
+(ert-deftest mocha-test/mocha-debug/errors-if-debugger-is-unknown ()
+  (let* ((mocha-debugger 'unknown-debugger)
+         (err (should-error (mocha-debug))))
+    (should (string-match-p "unknown-debugger" (cadr err)))))
+
+(ert-deftest mocha-test/mocha-debug/errors-if-debugger-is-unbound ()
+  (mocha-dynamic-flet ((realgud:nodejs) (indium-connect-to-nodejs))
+    (let* ((mocha-debugger 'realgud)
+           (err (should-error (mocha-debug) :type 'user-error)))
+      (should (string-match-p "realgud" (cadr err))))
+    (let* ((mocha-debugger 'indium)
+           (err (should-error (mocha-debug) :type 'user-error)))
+      (should (string-match-p "indium" (cadr err))))))
+
+(ert-deftest mocha-test/mocha-debug/realgud-debugger ()
+  (let ((addr "fc0b9f1a-0113-4368-a370-ff1a888ae6bb")
+        (mocha-debugger 'realgud)
+        realgud-calls)
+    (mocha-dynamic-flet ((mocha-generate-command
+                          (debug &optional mocha-file test)
+                          (concat "echo 'Debugger listening on ws://127.0.0.1:"
+                                  mocha-debug-port "/" addr "'"))
+                         (mocha-find-project-root () ".")
+                         (cd (dir) ".")
+                         (realgud:nodejs (&rest args) (push args realgud-calls)))
+      (mocha-debug))
+    (should (equal realgud-calls (list (list (concat mocha-which-node " debug localhost:"
+                                                     mocha-debug-port)))))))
+
+(ert-deftest mocha-test/mocha-debug/indium-debugger ()
+  (let ((addr "fc0b9f1a-0113-4368-a370-ff1a888ae6bb")
+        (mocha-debugger 'indium)
+        indium-calls)
+    (mocha-dynamic-flet ((mocha-generate-command
+                          (debug &optional mocha-file test)
+                          (concat "echo 'Debugger listening on ws://127.0.0.1:"
+                                  mocha-debug-port "/" addr "'"))
+                         (mocha-find-project-root () ".")
+                         (cd (dir) ".")
+                         (indium-connect-to-nodejs (&rest args) (push args indium-calls)))
+      (mocha-debug))
+    (should (equal indium-calls (list (list "127.0.0.1" mocha-debug-port addr))))))

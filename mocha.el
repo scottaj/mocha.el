@@ -53,6 +53,37 @@
   :group 'mocha
   :safe #'stringp)
 
+(defcustom mocha-debugger 'realgud
+  "Which debugger to use."
+  :type '(choice (const :tag "realgud" realgud)
+                 (const :tag "indium" indium))
+  :group 'mocha
+  :safe #'mocha-debugger-name-p)
+
+(defvar mocha-debuggers
+  '((realgud :must-bind realgud:nodejs :attach-fn mocha-realgud:nodejs-attach)
+    (indium :must-bind indium-connect-to-nodejs :attach-fn mocha-attach-indium))
+  "List of debuggers which can be attached with `mocha-debug'.
+Each entry is a list of (name . props), where NAME is a symbol
+that `mocha-debugger' can take on, and PROPS is a plist with two keys:
+
+:MUST-BIND is the name of a function that is bound when the
+debugger is loaded.  Before running mocha in debug mode, the
+symbol is tested with `fboundp' and the debug run is aborted if
+the result is nil.
+
+:ATTACH-FN is a function to `funcall' after the debug run has
+been started.  The function will be passed the following arguments:
+NODE - the value of `mocha-which-node' used for the debug run.
+BUF - the name of the buffer with the debug run command output.
+PORT - the value of `mocha-debug-port' when the debug run was started.
+MOCHA-FILENAME - the filename that `mocha-debug' was called on, if any.
+TEST - the name of the test that `mocha-debug' was called on, if any.")
+
+(defun mocha-debugger-name-p (val)
+  "Return nil if VAL is an invalid debugger name."
+  (assq val mocha-debuggers))
+
 (defcustom mocha-debug-port "5858"
   "The port number to debug mocha tests at."
   :type 'string
@@ -142,28 +173,62 @@ IF TEST is specified run mocha with a grep for just that test."
             target
             path)))
 
+(defun mocha-debugger-get (debugger-name prop)
+  "Return the value of debugger DEBUGGER-NAME's prop PROP."
+  (let ((props (assq debugger-name mocha-debuggers)))
+    (unless props (error "Unknown debugger %s" debugger-name))
+    (plist-get (cdr props) prop)))
+
+(defun mocha-check-debugger ()
+  "Ensure that the selected debugger is loaded."
+  (let ((cmd (mocha-debugger-get mocha-debugger :must-bind)))
+    (unless (and cmd (fboundp cmd))
+      (user-error "%s is required to debug mocha" cmd))))
+
 (defun mocha-debug (&optional mocha-file test)
-  "Debug mocha using realgud.
+  "Run mocha and attach a debugger.
 
 If MOCHA-FILE is specified run just that file otherwise run
 MOCHA-PROJECT-TEST-DIRECTORY.
 
 IF TEST is specified run mocha with a grep for just that test."
-  (if (not (fboundp 'realgud:nodejs))
-      (message "realgud is required to debug mocha")
-    (save-some-buffers (not compilation-ask-about-save)
+  (mocha-check-debugger)
+  (save-some-buffers (not compilation-ask-about-save)
                      (when (boundp 'compilation-save-buffers-predicate)
                        compilation-save-buffers-predicate))
 
   (when (get-buffer "*mocha tests: debug*")
     (kill-buffer "*mocha tests: debug*"))
   (let ((test-command-to-run (mocha-generate-command t mocha-file test))
-        (root-dir (mocha-find-project-root))
-        (debug-command (concat mocha-which-node " debug localhost:" mocha-debug-port)))
+        (root-dir (mocha-find-project-root)))
     (with-current-buffer (get-buffer-create "*mocha tests: debug*")
       (setq default-directory root-dir)
       (compilation-start test-command-to-run 'mocha-compilation-mode (lambda (m) (buffer-name)))
-      (realgud:nodejs debug-command)))))
+      (funcall (mocha-debugger-get mocha-debugger :attach-fn)
+               mocha-which-node (buffer-name) mocha-debug-port mocha-file test))))
+
+(defun mocha-realgud:nodejs-attach (node buf port file test)
+  "Attach `realgud:nodejs' to a running node process.
+NODE, BUF, PORT, FILE, and TEST are described in
+`mocha-debuggers' under :attach-fn."
+  (ignore buf file test)
+  (realgud:nodejs (concat node " debug localhost:" port)))
+
+(defun mocha-attach-indium (node buf port file test)
+  "Create a new `indium' connection to a running process.
+NODE, BUF, PORT, FILE, and TEST are described in
+`mocha-debuggers' under :attach-fn."
+  (ignore node port file test)
+  (with-current-buffer buf
+    (sit-for 1 t)
+    (save-excursion
+      (goto-char (point-min))
+      (if (re-search-forward (rx "Debugger listening on ws://" (group (* (not (any ":")))) ":"
+                                 (group (* digit)) "/" (group (repeat 8 hex)
+                                                              (repeat 4 (: "-" (repeat 4 hex)))
+                                                              (repeat 8 hex))))
+          (indium-connect-to-nodejs (match-string 1) (match-string 2) (match-string 3))
+        (error "Did not find debugger connection details for Indium")))))
 
 (defun mocha-run (&optional mocha-file test)
   "Run mocha in a compilation buffer.
