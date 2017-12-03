@@ -135,20 +135,15 @@
     (setq compilation-environment '("TEST=abc"))
     (let ((command (if (memq system-type '(windows-nt ms-dos))
                        "echo %TEST%"
-                     "echo $TEST"))
-          (old-mocha-generate-command (symbol-function 'mocha-generate-command))
-          (old-mocha-find-project-root (symbol-function 'mocha-find-project-root))
-          (old-cd (symbol-function 'cd)))
-      (unwind-protect
-          (progn
-            (fset 'mocha-generate-command (lambda (debug &optional mocha-file test) command))
-            (fset 'mocha-find-project-root (lambda () "."))
-            (fset 'cd (lambda (dir) "."))
-            (mocha-run))
-        (fset 'mocha-generate-command old-mocha-generate-command)
-        (fset 'mocha-find-project-root old-mocha-find-project-root)
-        (fset 'cd old-cd))
-      (sit-for 2)
+                     "echo $TEST")))
+      (mocha-dynamic-flet ((mocha-generate-command (debug &optional mocha-file test) command)
+                           (mocha-find-project-root () ".")
+                           (cd (dir) ".")
+                           ;; In 24.x, (fboundp 'start-process)
+                           ;; determines whether async compilation can
+                           ;; run. In 25.x, it's (fboundp 'make-process)
+                           (start-process) (make-process))
+        (mocha-run))
       (with-current-buffer "*mocha tests*"
         (goto-char 0)
         (should (search-forward (concat "\n" command "\n") nil t))
