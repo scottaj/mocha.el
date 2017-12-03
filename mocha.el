@@ -116,7 +116,7 @@ TEST - the name of the test that `mocha-debug' was called on, if any.")
 From http://benhollis.net/blog/2015/12/20/nodejs-stack-traces-in-emacs-compilation-mode/")
 
 (defvar node-error-regexp-alist
-  `((,node-error-regexp 1 2 3)))
+  `((,node-error-regexp 1 2 3 nil 1)))
 
 (defun mocha-compilation-filter ()
   "Filter function for compilation output."
