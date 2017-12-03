@@ -237,8 +237,6 @@ If MOCHA-FILE is specified run just that file otherwise run
 MOCHA-PROJECT-TEST-DIRECTORY.
 
 IF TEST is specified run mocha with a grep for just that test."
-  (when (get-buffer "*mocha tests*")
-    (kill-buffer "*mocha tests*"))
   (let ((test-command-to-run (mocha-generate-command nil mocha-file test))
         (default-directory (mocha-find-project-root))
         (compilation-buffer-name-function (lambda (_) "" "*mocha tests*")))
