@@ -43,5 +43,4 @@ will be given to `fmakunbound'."
                      `(setf (symbol-function ',(cadr old-new)) ,(car old-new)))
                    old-new-pairs)))))
 
-(provide 'test-helper)
 ;;; test-helper.el ends here
