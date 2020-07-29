@@ -24,7 +24,7 @@ The package can be installed via MELPA. The package name is mocha.
 
 Everything is set up right now to be configured via customize or per project in a `.dir-locals.el` file. You can find all options by looking at the `mocha` group in the customize interface. Below is an example configuration:
 
-```
+```elisp
 ((nil . (
             (mocha-which-node . "/Users/ajs/.nvm/versions/node/v4.2.2/bin/node")
             (mocha-command . "node_modules/.bin/mocha")

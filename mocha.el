@@ -35,7 +35,7 @@
   :group 'mocha
   :safe #'stringp)
 
-(defcustom mocha-environment-variables nil
+(defcustom mocha-environment-variables "FORCE_COLOR=1"
   "Environment variables to run mocha with."
   :type 'string
   :group 'mocha
