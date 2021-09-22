@@ -1,7 +1,5 @@
-'use strict';
+"use strict";
 
-function myParseFloat(number) {
-  return parseFloat(number);
-}
-
-module.exports = myParseFloat;
+module.exports = function myParseFloat(number){
+	return parseFloat(number);
+};

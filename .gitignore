@@ -1,6 +1,6 @@
 /.cask
 node_modules
 .tern-port
-/.ecukes-failing-scenarios
+.ecukes-failing-scenarios
 /.dir-locals.el
 /test/sandbox
