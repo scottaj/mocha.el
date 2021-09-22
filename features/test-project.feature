@@ -74,7 +74,7 @@ Feature: Test Mocha Project
     When I switch to buffer "parse-int-test.js"
     Then I should be in buffer "parse-int-test.js"
     When I switch to js2-mode
-    And I go to line "5"
+    And I go to line "7"
     And I run the command "mocha-test-at-point"
     And I wait for the compilation to finish
     Then I should see buffer "*mocha tests*"
@@ -94,7 +94,7 @@ Feature: Test Mocha Project
       """
       Mocha exited abnormally
       """
-    When I go to line "7"
+    When I go to line "9"
     And I run the command "mocha-test-at-point"
     And I wait for the compilation to finish
     Then I should see buffer "*mocha tests*"

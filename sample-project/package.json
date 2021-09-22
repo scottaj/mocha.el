@@ -1,16 +1,26 @@
 {
-  "name": "mocha-el-sample-project",
-  "version": "1.0.0",
-  "description": "Sample project for demoing and testing mocha.el capabilities",
-  "main": "lib/mocha-sample.js",
-  "scripts": {
-    "test": "$(npm bin)/mocha"
-  },
-  "author": "Al Scott",
-  "license": "MIT",
-  "devDependencies": {
-    "chai": "^3.5.0",
-    "eslint": "^2.10.1",
-    "mocha": "^2.4.5"
-  }
+	"name": "mocha-el-sample-project",
+	"version": "2.0.0",
+	"description": "Sample project for testing the `mocha.el` package.",
+	"main": "lib/mocha-sample.js",
+	"type": "commonjs",
+	"scripts": {
+		"lint": "npx eslint",
+		"test": "npx mocha"
+	},
+	"engines": {
+		"node": ">=12.22"
+	},
+	"author": "Al Scott",
+	"maintainers": [{
+		"name":  "John Gardner",
+		"email": "gardnerjohng@gmail.com",
+		"url":   "https://github.com/Alhadis"
+	}],
+	"license": "MIT",
+	"devDependencies": {
+		"chai": "^4.3.4",
+		"eslint": "^7.32.0",
+		"mocha": "^9.1.1"
+	}
 }

@@ -1,11 +1,11 @@
-const expect = require('chai').expect;
+"use strict";
 
-const myParseFloat = require('../src/parse-float.js');
+const {expect} = require("chai");
 
-describe('my parse float', function () {
-  it('turns a string into a number', function () {
-    let expected = myParseFloat('10.5');
+const myParseFloat = require("../src/parse-float.js");
 
-    expect(expected).to.equal(10.5);
-  });
+describe("myParseFloat()", () => {
+	it("turns a string into a number", () => {
+		expect(myParseFloat("10.5")).to.equal(10.5);
+	});
 });

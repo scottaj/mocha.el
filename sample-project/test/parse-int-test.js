@@ -1,17 +1,17 @@
-const expect = require('chai').expect;
+"use strict";
 
-const myParseInt = require('../src/parse-int.js');
+const {expect} = require("chai");
 
-describe('my parse int', function () {
-  it('turns a string into a number (integer)', function () {
-    let expected = myParseInt('10');
+const myParseInt = require("../src/parse-int.js");
 
-    expect(expected).to.equal(10);
-  });
+describe("myParseInt()", () => {
+	it("turns a string into an integer", () => {
+		const expected = myParseInt("10");
+		expect(expected).to.equal(10);
+	});
 
-  it('turns a string starting with 0 into an octal number', function () {
-    let expected = myParseInt('010');
-
-    expect(expected).to.equal(8);
-  });
+	// NB: This test is expected to fail
+	it("turns a string starting with 0 into an octal number", () => {
+		expect(myParseInt("010")).to.equal(8);
+	});
 });
