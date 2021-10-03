@@ -2,9 +2,6 @@
 [![Melpa Stable Status](http://melpa-stable.milkbox.net/packages/mocha-badge.svg)](http://melpa-stable.milkbox.net/#/mocha)
 [![Build Status](https://travis-ci.org/scottaj/mocha.el.svg?branch=master)](https://travis-ci.org/scottaj/mocha.el)
 
-# Maintainer Needed
-I no longer use emacs outside of magit, and don't use mocha day-to-day either, so I don't have the resources or setup to maintain and test this project. If you would like to own/maintain it let me know.
-
 # mocha.el
 Emacs helpers for running mocha tests. It lets you test an entire project, a particular file, or a particular test in that file.
 
